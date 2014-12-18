@@ -21,7 +21,41 @@
             }
         }
     };
-
+    
+    //xml utils for web
+    webutils.xml = {
+        callXslt: function (options) {
+            var settings = {
+                type: 'GET',
+                dataType: 'text'//输出text类型可避免DOM/MSDOM差异带来的兼容性问题。
+            };
+            $.extend(settings, options);
+            $.ajax({
+                type: settings.type,
+                url: settings.url,
+                data: settings.data,
+                dataType: settings.dataType,
+                success: function (result) {
+                    if (typeof (XSLTProcessor) == "undefined") {
+                        var xslDoc = new ActiveXObject("Msxml2.FreeThreadedDOMDocument.6.0");
+                        xslDoc.loadXML(result);
+                        var xslt = new ActiveXObject("Msxml2.XSLTemplate.6.0");
+                        xslt.stylesheet = xslDoc;
+                        var xslProc = xslt.createProcessor();
+                        xslProc.input = settings.xml;
+                        xslProc.transform();
+                        settings.success(xslProc.output);
+                    } else {
+                        var xsltProcessor = new XSLTProcessor();
+                        xsltProcessor.importStylesheet((new DOMParser()).parseFromString(result, "text/xml"));
+                        var resultDocument = xsltProcessor.transformToFragment(settings.xml, document);
+                        settings.success(resultDocument);
+                    }
+                },
+                error: settings.error
+            });
+        }
+    };
 
     //Web常用对象扩展库
     //....
