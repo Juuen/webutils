@@ -9,20 +9,20 @@
         _url: function (u) { return u || window.location.href; },
         get: function (name, uri) {
             var value = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(this._url(uri));
-            return value == null ? null : value[1];
+            return value == null ? null : decodeURIComponent(value[1]);
         },
         set: function (name, value, uri) {
             var _u = this._url(uri);
             if (_u.indexOf(name + '=') > 0) {
-                return _u.replace(new RegExp('([\?&])' + name + '=[^&#]*', 'i'), '$1' + name + '=' + value);
+                return _u.replace(new RegExp('([\?&])' + name + '=[^&#]*', 'i'), '$1' + name + '=' + encodeURIComponent(value));
             } else {
-                return _u + (_u.indexOf('?') > 0 ? '&' : '?') + name + '=' + value;
+                return _u + (_u.indexOf('?') > 0 ? '&' : '?') + name + '=' + encodeURIComponent(value);
                 //考虑锚点待定
             }
         }
     };
-    
-    //xml utils for web
+
+    //
     webutils.xml = {
         callXslt: function (options) {
             var settings = {
@@ -56,7 +56,6 @@
             });
         }
     };
-
     //Web常用对象扩展库
     //....
 
@@ -85,6 +84,13 @@
         return format;
     }
 
+    Date.prototype.firstdate = function () {
+        return new Date(this.getFullYear(), this.getMonth(), 1);
+    }
+
+    Date.prototype.lastdate = function () {
+        return new Date(this.getFullYear(), this.getMonth() + 1, 0);
+    }
     //访问接口
     //if (typeof $ != undefined) {
     //    $.wu = webutils;
